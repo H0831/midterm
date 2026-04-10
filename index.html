@@ -580,14 +580,14 @@
         import { getFirestore, collection, addDoc, onSnapshot, serverTimestamp, doc, deleteDoc, updateDoc, arrayUnion, arrayRemove } from 'https://www.gstatic.com/firebasejs/11.0.1/firebase-firestore.js';
 
         const firebaseConfig = {
-            apiKey: "AIzaSyBCC_ZKDOKVWagnRdxyXMibEK4-tQVx5EI",
-            authDomain: "happylife-0301.firebaseapp.com",
-            projectId: "happylife-0301",
-            storageBucket: "happylife-0301.firebasestorage.app",
-            messagingSenderId: "50842617524",
-            appId: "1:50842617524:web:cbe2b1029a9b7bb043b9e1",
-            measurementId: "G-PTR207JCBK"
-        };
+  apiKey: "AIzaSyBCC_ZKDOKVWagnRdxyXMibEK4-tQVx5EI",
+  authDomain: "happylife-0301.firebaseapp.com",
+  projectId: "happylife-0301",
+  storageBucket: "happylife-0301.firebasestorage.app",
+  messagingSenderId: "50842617524",
+  appId: "1:50842617524:web:cbe2b1029a9b7bb043b9e1",
+  measurementId: "G-PTR207JCBK"
+};
         
         const app = initializeApp(firebaseConfig);
         const auth = getAuth(app);
@@ -775,7 +775,7 @@
             const pwd = document.getElementById('admin-pwd').value;
             const msgEl = document.getElementById('admin-msg');
             
-            if (pwd !== 'admin') {
+            if (pwd !== '260831') {
                 msgEl.textContent = '비밀번호가 일치하지 않습니다.';
                 msgEl.classList.remove('hidden');
                 return;
