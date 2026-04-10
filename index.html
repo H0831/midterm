@@ -118,7 +118,7 @@
     <div id="admin-modal" class="fixed inset-0 bg-black/50 z-[100] hidden flex items-center justify-center p-4">
         <div class="bg-white rounded-2xl p-6 max-w-sm w-full shadow-2xl transform scale-95 transition-transform">
             <h3 class="font-bold text-lg mb-2 text-gray-800">관리자 권한 확인 🔒</h3>
-            <p class="text-xs text-gray-500 mb-4">해당 항목을 삭제하려면 관리자 비밀번호를 입력하세요. <br></p>
+            <p class="text-xs text-gray-500 mb-4">해당 항목을 삭제하려면 관리자 비밀번호를 입력하세요. <br>(비밀번호: admin)</p>
             <input type="password" id="admin-pwd" class="w-full border border-gray-200 rounded-lg px-3 py-2 text-sm mb-2 outline-none focus:ring-1 focus:ring-rose-400" placeholder="비밀번호 입력">
             <div id="admin-msg" class="hidden text-rose-500 text-[10px] font-bold mb-4"></div>
             <div class="flex justify-end gap-2 mt-4">
@@ -158,7 +158,7 @@
                 <div class="bg-white px-8 md:px-12 py-5 md:py-7 rounded-[2rem] shadow-lg border border-gray-100 flex flex-wrap justify-center items-center gap-6 md:gap-14">
                     <div class="text-left">
                         <p class="text-[10px] text-gray-400 font-bold uppercase tracking-widest mb-1">Target Range</p>
-                        <p class="text-base md:text-lg font-bold text-gray-800 tracking-tight">4.9(목) ~ 4.27(월)</p>
+                        <p class="text-base md:text-lg font-bold text-gray-800 tracking-tight">4.10(금) ~ 4.27(월)</p>
                     </div>
                     <div class="hidden sm:block w-px h-8 bg-gray-100"></div>
                     <div class="text-5xl md:text-7xl font-black text-rose-500 tracking-tighter" id="d-day-display">D-Day</div>
@@ -186,7 +186,7 @@
             <!-- Timeline (7/12) -->
             <div class="lg:col-span-7 bg-white rounded-[2.5rem] p-6 md:p-10 shadow-sm border border-gray-100 h-fit">
                 <h2 class="text-xl md:text-2xl font-bold text-gray-800 flex items-center gap-3 mb-3">
-                    <span class="text-2xl md:text-3xl">⏳</span> 19일의 기적 스케줄
+                    <span class="text-2xl md:text-3xl">⏳</span> 17일의 기적 스케줄
                 </h2>
                 <p class="text-xs md:text-sm text-gray-500 mb-8">4월 10일부터 시험 전날까지, 3단계 집중 목표입니다.</p>
 
@@ -195,7 +195,7 @@
                     <div class="relative timeline-node pl-8 md:pl-10">
                         <div class="absolute w-5 h-5 md:w-7 md:h-7 bg-amber-400 rounded-full -left-[11px] md:-left-[16px] top-1 border-4 border-white shadow-sm"></div>
                         <div class="bg-amber-50 rounded-3xl p-5 md:p-6 border border-amber-100">
-                            <span class="text-[10px] md:text-xs font-bold text-amber-600 uppercase tracking-widest">1단계 (4/10 ~ 4/14)</span>
+                            <span class="text-[10px] md:text-xs font-bold text-amber-600 uppercase tracking-widest">1단계 (4/9 ~ 4/14)</span>
                             <h3 class="text-lg font-bold text-gray-800 mt-1">개념 완성기 (내용 정리 & 암기 노트)</h3>
                             <ul class="mt-3 text-xs md:text-sm text-gray-600 space-y-2">
                                 <li>• 전 과목 교과서 정독(3회 이상) 및 노트 정리(미니 암기노트)</li>
@@ -372,6 +372,49 @@
                     </ul>
                 </div>
             </div>
+
+            <!-- 추천 가이드 영상 (신규 추가) -->
+            <div class="mt-16">
+                <div class="mb-10 text-center">
+                    <h3 class="text-xl md:text-2xl font-bold flex items-center justify-center gap-2 text-gray-200">
+                        <span class="text-2xl">📺</span> 추천 가이드 영상
+                    </h3>
+                    <p class="text-xs md:text-sm text-gray-500 mt-2">영상을 보며 나만의 공부법을 완성해 보세요.</p>
+                </div>
+                
+                <div class="grid grid-cols-1 md:grid-cols-3 gap-6">
+                    <!-- 플래너 작성 -->
+                    <div class="bg-gray-800/40 rounded-3xl p-5 border border-white/10 transition-transform hover:-translate-y-1">
+                        <h4 class="text-blue-400 font-bold mb-4 text-sm md:text-base flex items-center gap-2">
+                            <span class="bg-blue-500/20 px-2 py-1 rounded text-[10px] uppercase">Guide 1</span> 플래너 작성법
+                        </h4>
+                        <div class="relative w-full aspect-video rounded-xl overflow-hidden shadow-lg border border-gray-700">
+                            <iframe class="absolute top-0 left-0 w-full h-full" src="https://www.youtube.com/embed/xjZU5Rdrgko" title="YouTube video player" frameborder="0" allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture; web-share" allowfullscreen></iframe>
+                        </div>
+                    </div>
+
+                    <!-- 개념노트 작성 -->
+                    <div class="bg-gray-800/40 rounded-3xl p-5 border border-white/10 transition-transform hover:-translate-y-1">
+                        <h4 class="text-emerald-400 font-bold mb-4 text-sm md:text-base flex items-center gap-2">
+                            <span class="bg-emerald-500/20 px-2 py-1 rounded text-[10px] uppercase">Guide 2</span> 개념노트 작성법
+                        </h4>
+                        <div class="relative w-full aspect-video rounded-xl overflow-hidden shadow-lg border border-gray-700">
+                            <iframe class="absolute top-0 left-0 w-full h-full" src="https://www.youtube.com/embed/DZIwbBdagDA" title="YouTube video player" frameborder="0" allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture; web-share" allowfullscreen></iframe>
+                        </div>
+                    </div>
+
+                    <!-- 시험 기간 플랜 -->
+                    <div class="bg-gray-800/40 rounded-3xl p-5 border border-white/10 transition-transform hover:-translate-y-1">
+                        <h4 class="text-rose-400 font-bold mb-4 text-sm md:text-base flex items-center gap-2">
+                            <span class="bg-rose-500/20 px-2 py-1 rounded text-[10px] uppercase">Guide 3</span> 시험 기간 플랜
+                        </h4>
+                        <div class="relative w-full aspect-video rounded-xl overflow-hidden shadow-lg border border-gray-700">
+                            <iframe class="absolute top-0 left-0 w-full h-full" src="https://www.youtube.com/embed/tMJMCFuQhQQ" title="YouTube video player" frameborder="0" allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture; web-share" allowfullscreen></iframe>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
         </div>
     </section>
 
@@ -609,7 +652,7 @@
             const pwd = document.getElementById('admin-pwd').value;
             const msgEl = document.getElementById('admin-msg');
             
-            if (pwd !== 'admin') { // 관리자 비밀번호
+            if (pwd !== '250831') { // 관리자 비밀번호
                 msgEl.textContent = '비밀번호가 일치하지 않습니다.';
                 msgEl.classList.remove('hidden');
                 return;
@@ -1118,7 +1161,7 @@
                         '1단원 소통으로 커지는 세상 + 너를 기다리는 동안',
                         '4단원 음운 (음운의 변동 규칙 전체)'
                     ],
-                    method: '음운 규칙(교체, 탈락, 축약, 첨가)을 실제 단어로 구분하며 암기하세요. 문학은 화자의 정서 변화를 '인출 학습'으로 확인하는 것이 핵심입니다.'
+                    method: '음운 규칙(교체, 탈락, 축약, 첨가)을 실제 단어로 구분하며 암기하세요. 문학은 화자의 정서 변화를 "인출 학습"으로 확인하는 것이 핵심입니다.'
                 },
                 {
                     id: 'math', name: '공통수학', icon: '📐', color: 'bg-blue-50', textColor: 'text-blue-700', borderColor: 'border-blue-100',
@@ -1128,7 +1171,7 @@
                         '교과서 p.10~66, p.86 1~7번 / p.134~136, p.137 8번',
                         '연습문제(리로스쿨-활동보고서-교과활동 업로드)'
                     ],
-                    method: '교과서 및 추가 연습 문제를 최소 5번 반복하세요. 눈으로 풀지 마세요! 손이 기억하게 해야 합니다. 개념 정리 후 예제/유제부터 잡으세요. 틀린 문제는 오답 노트에 옮기고 '왜 이 공식을 썼는지' 설명할 수 있을 때까지 반복하세요.'
+                    method: '교과서 및 추가 연습 문제를 최소 5번 반복하세요. 눈으로 풀지 마세요! 손이 기억하게 해야 합니다. 개념 정리 후 예제/유제부터 잡으세요. 틀린 문제는 오답 노트에 옮기고 "왜 이 공식을 썼는지" 설명할 수 있을 때까지 반복하세요.'
                 },
                 {
                     id: 'english', name: '공통영어', icon: '🔤', color: 'bg-amber-50', textColor: 'text-amber-700', borderColor: 'border-amber-100',
