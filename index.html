@@ -614,8 +614,8 @@
             try {
                 await signInWithPopup(auth, provider);
             } catch (error) {
-                console.error(error);
-                alert("구글 로그인 중 오류가 발생했거나 팝업이 차단되었습니다. 팝업 차단을 해제해 주세요.");
+                console.error("로그인 에러 상세:", error);
+                alert("현재 미리보기 화면에서는 브라우저 보안 정책으로 인해 로그인 팝업이 차단됩니다.\n\n[해결 방법]\n이 코드를 다운로드하거나 복사하여 '.html' 파일로 저장한 뒤 브라우저에서 직접 열어주세요. 실제 서버에 배포하면 정상적으로 작동합니다! 🚀");
             }
         });
 
