@@ -580,19 +580,25 @@
         import { getFirestore, collection, addDoc, onSnapshot, serverTimestamp, doc, deleteDoc, updateDoc, arrayUnion, arrayRemove } from 'https://www.gstatic.com/firebasejs/11.0.1/firebase-firestore.js';
 
         const firebaseConfig = {
-  apiKey: "AIzaSyBCC_ZKDOKVWagnRdxyXMibEK4-tQVx5EI",
-  authDomain: "happylife-0301.firebaseapp.com",
-  projectId: "happylife-0301",
-  storageBucket: "happylife-0301.firebasestorage.app",
-  messagingSenderId: "50842617524",
-  appId: "1:50842617524:web:cbe2b1029a9b7bb043b9e1",
-  measurementId: "G-PTR207JCBK"
-};
+            apiKey: "AIzaSyBCC_ZKDOKVWagnRdxyXMibEK4-tQVx5EI",
+            authDomain: "happylife-0301.firebaseapp.com",
+            projectId: "happylife-0301",
+            storageBucket: "happylife-0301.firebasestorage.app",
+            messagingSenderId: "50842617524",
+            appId: "1:50842617524:web:cbe2b1029a9b7bb043b9e1",
+            measurementId: "G-PTR207JCBK"
+        };
         
         const app = initializeApp(firebaseConfig);
         const auth = getAuth(app);
         const db = getFirestore(app);
+        
         const provider = new GoogleAuthProvider();
+        // 1차 방어: 구글 로그인 창에서 학교 도메인(@bigs.hs.kr)만 선택하도록 제한
+        provider.setCustomParameters({
+            hd: 'bigs.hs.kr'
+        });
+        
         const appId = typeof __app_id !== 'undefined' ? __app_id : 'highschool-final-integrated-v3';
 
         let currentUser = null;
@@ -678,7 +684,18 @@
         });
 
         // 인증 상태 감지 및 UI 업데이트
-        onAuthStateChanged(auth, (user) => {
+        onAuthStateChanged(auth, async (user) => {
+            // 2차 방어: 구글 로그인을 통과했더라도 학교 이메일이 아니면 즉시 강제 차단
+            if (user && !user.isAnonymous) {
+                const email = user.email || "";
+                if (!email.endsWith('@bigs.hs.kr')) {
+                    alert("⚠️ 학교 공식 계정(@bigs.hs.kr)으로만 접속할 수 있습니다.\n개인 이메일은 사용이 제한되므로 로그아웃 처리됩니다.");
+                    await signOut(auth);
+                    await signInAnonymously(auth); // 읽기 전용 상태로 복구
+                    return; // 더 이상 아래 로직을 실행하지 않고 중단
+                }
+            }
+
             currentUser = user;
             updateAuthUI(user);
             
@@ -758,7 +775,7 @@
             const pwd = document.getElementById('admin-pwd').value;
             const msgEl = document.getElementById('admin-msg');
             
-            if (pwd !== '260831') {
+            if (pwd !== 'admin') {
                 msgEl.textContent = '비밀번호가 일치하지 않습니다.';
                 msgEl.classList.remove('hidden');
                 return;
