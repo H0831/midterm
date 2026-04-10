@@ -158,7 +158,7 @@
                 <div class="bg-white px-8 md:px-12 py-5 md:py-7 rounded-[2rem] shadow-lg border border-gray-100 flex flex-wrap justify-center items-center gap-6 md:gap-14">
                     <div class="text-left">
                         <p class="text-[10px] text-gray-400 font-bold uppercase tracking-widest mb-1">Target Range</p>
-                        <p class="text-base md:text-lg font-bold text-gray-800 tracking-tight">4.10(금) ~ 4.27(월)</p>
+                        <p class="text-base md:text-lg font-bold text-gray-800 tracking-tight">4.9(목) ~ 4.27(월)</p>
                     </div>
                     <div class="hidden sm:block w-px h-8 bg-gray-100"></div>
                     <div class="text-5xl md:text-7xl font-black text-rose-500 tracking-tighter" id="d-day-display">D-Day</div>
@@ -186,7 +186,7 @@
             <!-- Timeline (7/12) -->
             <div class="lg:col-span-7 bg-white rounded-[2.5rem] p-6 md:p-10 shadow-sm border border-gray-100 h-fit">
                 <h2 class="text-xl md:text-2xl font-bold text-gray-800 flex items-center gap-3 mb-3">
-                    <span class="text-2xl md:text-3xl">⏳</span> 17일의 기적 스케줄
+                    <span class="text-2xl md:text-3xl">⏳</span> 19일의 기적 스케줄
                 </h2>
                 <p class="text-xs md:text-sm text-gray-500 mb-8">4월 10일부터 시험 전날까지, 3단계 집중 목표입니다.</p>
 
@@ -404,6 +404,8 @@
                     <div id="form-msg" class="hidden text-rose-500 text-center mt-3 text-[10px] font-bold"></div>
                 </div>
                 <div id="note-board" class="grid grid-cols-2 md:grid-cols-4 gap-4 min-h-[300px] items-start"></div>
+                <!-- 응원 보드 페이지네이션 -->
+                <div id="board-pagination" class="flex justify-center gap-2 mt-8 flex-wrap"></div>
             </div>
         </div>
     </section>
@@ -464,6 +466,8 @@
                 <div id="qna-list" class="space-y-4 min-h-[300px]">
                     <!-- Questions will be dynamically inserted here -->
                 </div>
+                <!-- QnA 페이지네이션 -->
+                <div id="qna-pagination" class="flex justify-center gap-2 mt-8 flex-wrap"></div>
             </div>
         </div>
     </section>
@@ -496,7 +500,7 @@
     <script type="module">
         import { initializeApp } from 'https://www.gstatic.com/firebasejs/11.0.1/firebase-app.js';
         import { getAuth, signInAnonymously, onAuthStateChanged, signInWithCustomToken } from 'https://www.gstatic.com/firebasejs/11.0.1/firebase-auth.js';
-        import { getFirestore, collection, addDoc, onSnapshot, serverTimestamp, doc, deleteDoc, updateDoc } from 'https://www.gstatic.com/firebasejs/11.0.1/firebase-firestore.js';
+        import { getFirestore, collection, addDoc, onSnapshot, serverTimestamp, doc, deleteDoc, updateDoc, arrayUnion, arrayRemove } from 'https://www.gstatic.com/firebasejs/11.0.1/firebase-firestore.js';
 
         const firebaseConfig = {
   apiKey: "AIzaSyBCC_ZKDOKVWagnRdxyXMibEK4-tQVx5EI",
@@ -518,7 +522,15 @@
         let currentQnaFilter = '전체';
         let deleteTarget = { type: null, parentId: null, childId: null }; // 모달 상태 관리
 
-        // 이미지 압축 (최대 너비 800px, 품질 70%)
+        // 페이지네이션 상태 변수 설정
+        let boardNotesData = [];
+        let boardCurrentPage = 1;
+        const boardItemsPerPage = 12; // 응원 보드 한 페이지당 개수
+
+        let qnaCurrentPage = 1;
+        const qnaItemsPerPage = 5; // QnA 한 페이지당 개수
+
+        // 이미지 압축 (최대 너비 400px, 품질 60% 로 강화 - 300명 대비 트래픽 절약)
         const compressImage = (file) => {
             return new Promise((resolve) => {
                 if (!file) return resolve(null);
@@ -528,7 +540,7 @@
                     img.src = event.target.result;
                     img.onload = () => {
                         const canvas = document.createElement('canvas');
-                        const MAX_WIDTH = 800;
+                        const MAX_WIDTH = 400; // 800에서 400으로 줄임
                         let width = img.width;
                         let height = img.height;
 
@@ -540,7 +552,7 @@
                         canvas.height = height;
                         const ctx = canvas.getContext('2d');
                         ctx.drawImage(img, 0, 0, width, height);
-                        resolve(canvas.toDataURL('image/jpeg', 0.7));
+                        resolve(canvas.toDataURL('image/jpeg', 0.6)); // 0.7에서 0.6으로 화질 약간 조정
                     };
                     img.onerror = () => resolve(null);
                 };
@@ -597,7 +609,7 @@
             const pwd = document.getElementById('admin-pwd').value;
             const msgEl = document.getElementById('admin-msg');
             
-            if (pwd !== '260831') { // 관리자 비밀번호
+            if (pwd !== 'admin') { // 관리자 비밀번호
                 msgEl.textContent = '비밀번호가 일치하지 않습니다.';
                 msgEl.classList.remove('hidden');
                 return;
@@ -624,6 +636,54 @@
             }
         });
 
+        // ------------------
+        // 좋아요(하트) 로직
+        // ------------------
+        window.toggleBoardLike = async (noteId) => {
+            if (!currentUser) return;
+            const note = boardNotesData.find(n => n.id === noteId);
+            if (!note) return;
+            const docRef = doc(db, 'artifacts', appId, 'public', 'data', 'messages', noteId);
+            const hasLiked = note.likedBy && note.likedBy.includes(currentUser.uid);
+            try {
+                await updateDoc(docRef, { likedBy: hasLiked ? arrayRemove(currentUser.uid) : arrayUnion(currentUser.uid) });
+            } catch (e) { console.error(e); }
+        };
+
+        window.toggleQnaQuestionLike = async (qId) => {
+            if (!currentUser) return;
+            const q = questionsData.find(q => q.id === qId);
+            if (!q) return;
+            const docRef = doc(db, 'artifacts', appId, 'public', 'data', 'qna_questions', qId);
+            const hasLiked = q.likedBy && q.likedBy.includes(currentUser.uid);
+            try {
+                await updateDoc(docRef, { likedBy: hasLiked ? arrayRemove(currentUser.uid) : arrayUnion(currentUser.uid) });
+            } catch (e) { console.error(e); }
+        };
+
+        window.toggleQnaAnswerLike = async (qId, aId) => {
+            if (!currentUser) return;
+            const q = questionsData.find(q => q.id === qId);
+            if (!q) return;
+            const aIndex = q.answers.findIndex(a => a.id === aId);
+            if (aIndex === -1) return;
+            
+            const updatedAnswers = [...q.answers];
+            const answer = updatedAnswers[aIndex];
+            const likedBy = answer.likedBy || [];
+            const hasLiked = likedBy.includes(currentUser.uid);
+            
+            if (hasLiked) {
+                answer.likedBy = likedBy.filter(uid => uid !== currentUser.uid);
+            } else {
+                answer.likedBy = [...likedBy, currentUser.uid];
+            }
+            
+            const docRef = doc(db, 'artifacts', appId, 'public', 'data', 'qna_questions', qId);
+            try {
+                await updateDoc(docRef, { answers: updatedAnswers });
+            } catch (e) { console.error(e); }
+        };
 
         // ------------------
         // 응원 보드 로직
@@ -634,20 +694,33 @@
         const setupRealtimeBoard = () => {
             const msgCollection = collection(db, 'artifacts', appId, 'public', 'data', 'messages');
             onSnapshot(msgCollection, (snapshot) => {
-                const notes = [];
-                snapshot.forEach(doc => notes.push({ id: doc.id, ...doc.data() }));
-                notes.sort((a, b) => (b.createdAt?.toMillis() || 0) - (a.createdAt?.toMillis() || 0));
-                renderNotes(notes.slice(0, 20)); // 사진이 포함되어 너무 길어질 수 있으니 20개까지만 표시
+                boardNotesData = [];
+                snapshot.forEach(doc => boardNotesData.push({ id: doc.id, ...doc.data() }));
+                boardNotesData.sort((a, b) => (b.createdAt?.toMillis() || 0) - (a.createdAt?.toMillis() || 0));
+                renderNotes(); 
             }, (error) => console.error(error));
         };
 
-        const renderNotes = (notes) => {
-            if (notes.length === 0) {
+        const renderNotes = () => {
+            const paginationEl = document.getElementById('board-pagination');
+            
+            if (boardNotesData.length === 0) {
                 boardEl.innerHTML = '<div class="col-span-full text-center text-[10px] opacity-40 py-10 font-bold">첫 번째 응원을 남겨보세요! 🐣</div>';
+                paginationEl.innerHTML = '';
                 return;
             }
+            
             boardEl.innerHTML = '';
-            notes.forEach((note, idx) => {
+
+            // 페이지네이션 계산
+            const totalPages = Math.ceil(boardNotesData.length / boardItemsPerPage);
+            if (boardCurrentPage > totalPages) boardCurrentPage = totalPages || 1;
+            
+            const startIndex = (boardCurrentPage - 1) * boardItemsPerPage;
+            const endIndex = startIndex + boardItemsPerPage;
+            const visibleNotes = boardNotesData.slice(startIndex, endIndex);
+            
+            visibleNotes.forEach((note, idx) => {
                 const colorClass = colors[idx % colors.length];
                 const noteDiv = document.createElement('div');
                 noteDiv.className = `sticky-note ${colorClass} p-4 rounded-2xl shadow-sm border transform rotate-${idx % 2 === 0 ? '-1' : '1'} flex flex-col justify-between`;
@@ -657,18 +730,51 @@
                     imgHtml = `<img src="${note.imageUrl}" class="w-full h-auto max-h-[120px] object-cover rounded-lg mb-2 shadow-sm bg-white/50" loading="lazy">`;
                 }
 
+                const isLiked = note.likedBy && currentUser && note.likedBy.includes(currentUser.uid);
+                const likeCount = note.likedBy ? note.likedBy.length : 0;
+
                 noteDiv.innerHTML = `
                     <div class="flex-grow flex flex-col">
                         ${imgHtml}
                         <p class="text-[10px] md:text-xs text-gray-700 font-bold leading-relaxed break-words italic mb-2 flex-grow">"${note.content}"</p>
                     </div>
                     <div class="mt-auto border-t border-black/5 pt-2 flex justify-between items-center">
-                        <button onclick="window.requestDelete('note', '${note.id}')" class="text-[9px] text-rose-400 hover:text-rose-600 bg-white/60 px-2 py-0.5 rounded transition">🗑️ 삭제</button>
+                        <div class="flex items-center gap-1">
+                            <button onclick="window.toggleBoardLike('${note.id}')" class="text-[9px] flex items-center gap-1 ${isLiked ? 'text-rose-500 font-bold' : 'text-gray-400 hover:text-rose-400'} bg-white/60 px-2 py-0.5 rounded transition">
+                                ${isLiked ? '❤️' : '🤍'} ${likeCount}
+                            </button>
+                            <button onclick="window.requestDelete('note', '${note.id}')" class="text-[9px] text-gray-400 hover:text-rose-600 bg-white/60 px-1.5 py-0.5 rounded transition">🗑️</button>
+                        </div>
                         <span class="font-black text-gray-500 text-[9px] bg-white/60 px-2 py-0.5 rounded">${note.name}</span>
                     </div>
                 `;
                 boardEl.appendChild(noteDiv);
             });
+            
+            renderBoardPagination(totalPages);
+        };
+
+        const renderBoardPagination = (totalPages) => {
+            const paginationEl = document.getElementById('board-pagination');
+            paginationEl.innerHTML = '';
+            
+            if (totalPages <= 1) return;
+
+            for (let i = 1; i <= totalPages; i++) {
+                const btn = document.createElement('button');
+                btn.textContent = i;
+                if (i === boardCurrentPage) {
+                    btn.className = 'w-8 h-8 rounded-full bg-rose-400 text-white text-xs font-bold shadow-md transform scale-110 transition-all';
+                } else {
+                    btn.className = 'w-8 h-8 rounded-full bg-white border border-gray-200 text-gray-600 text-xs font-bold hover:bg-gray-50 transition-all';
+                }
+                btn.addEventListener('click', () => {
+                    boardCurrentPage = i;
+                    renderNotes();
+                    document.getElementById('board').scrollIntoView({ behavior: 'smooth', block: 'start' });
+                });
+                paginationEl.appendChild(btn);
+            }
         };
 
         document.getElementById('note-image').addEventListener('change', function(e) {
@@ -698,7 +804,7 @@
                 const imageUrl = await compressImage(fileInput.files[0]);
                 
                 await addDoc(collection(db, 'artifacts', appId, 'public', 'data', 'messages'), {
-                    name, content, imageUrl, createdAt: serverTimestamp(), userId: currentUser.uid
+                    name, content, imageUrl, createdAt: serverTimestamp(), userId: currentUser.uid, likedBy: []
                 });
                 
                 document.getElementById('note-content').value = '';
@@ -730,6 +836,7 @@
 
         window.setQnaFilter = (category) => {
             currentQnaFilter = category;
+            qnaCurrentPage = 1; // 탭 변경 시 1페이지로 초기화
             // 탭 스타일 변경
             document.querySelectorAll('.qna-tab').forEach(btn => {
                 if(btn.textContent.trim() === category) {
@@ -745,24 +852,47 @@
 
         const renderQnA = () => {
             const listEl = document.getElementById('qna-list');
+            const paginationEl = document.getElementById('qna-pagination');
             const filtered = currentQnaFilter === '전체' ? questionsData : questionsData.filter(q => q.category === currentQnaFilter);
             
             if (filtered.length === 0) {
                 listEl.innerHTML = '<div class="text-center py-10 bg-white rounded-2xl border border-dashed border-gray-200"><p class="text-gray-400 text-sm font-bold mb-1">등록된 질문이 없습니다.</p><p class="text-[10px] text-gray-300">궁금한 점을 가장 먼저 물어보세요!</p></div>';
+                paginationEl.innerHTML = '';
                 return;
             }
 
-            listEl.innerHTML = filtered.map(q => {
-                const answersHtml = (q.answers || []).map(a => `
+            // 페이지네이션 계산
+            const totalPages = Math.ceil(filtered.length / qnaItemsPerPage);
+            if (qnaCurrentPage > totalPages) qnaCurrentPage = totalPages || 1;
+
+            const startIndex = (qnaCurrentPage - 1) * qnaItemsPerPage;
+            const endIndex = startIndex + qnaItemsPerPage;
+            const visibleQnA = filtered.slice(startIndex, endIndex);
+
+            listEl.innerHTML = visibleQnA.map(q => {
+                const qIsLiked = q.likedBy && currentUser && q.likedBy.includes(currentUser.uid);
+                const qLikeCount = q.likedBy ? q.likedBy.length : 0;
+
+                const answersHtml = (q.answers || []).map(a => {
+                    const aIsLiked = a.likedBy && currentUser && a.likedBy.includes(currentUser.uid);
+                    const aLikeCount = a.likedBy ? a.likedBy.length : 0;
+
+                    return `
                     <div class="bg-gray-50/80 rounded-xl p-3 border border-gray-100 flex flex-col gap-2 relative group">
                         <div class="flex justify-between items-center">
                             <span class="text-[10px] font-bold text-blue-700 bg-blue-100/50 px-2 py-0.5 rounded">${a.studentId} ${a.name}</span>
-                            <button onclick="window.requestDelete('answer', '${q.id}', '${a.id}')" class="text-gray-300 hover:text-rose-400 text-[10px] transition font-bold">삭제</button>
+                            <div class="flex items-center gap-2">
+                                <button onclick="window.toggleQnaAnswerLike('${q.id}', '${a.id}')" class="text-[9px] flex items-center gap-1 ${aIsLiked ? 'text-rose-500 font-bold' : 'text-gray-400 hover:text-rose-400'} bg-white px-1.5 py-0.5 rounded border border-gray-100 transition shadow-sm">
+                                    ${aIsLiked ? '❤️' : '🤍'} ${aLikeCount}
+                                </button>
+                                <button onclick="window.requestDelete('answer', '${q.id}', '${a.id}')" class="text-gray-300 hover:text-rose-400 text-[10px] transition font-bold">삭제</button>
+                            </div>
                         </div>
                         <p class="text-xs text-gray-700 break-words leading-relaxed">${a.content}</p>
                         ${a.imageUrl ? `<img src="${a.imageUrl}" class="w-full max-w-[300px] h-auto rounded-lg object-contain shadow-sm border border-gray-100" loading="lazy">` : ''}
                     </div>
-                `).join('');
+                    `;
+                }).join('');
 
                 return `
                     <div class="bg-white rounded-[1.5rem] p-5 md:p-7 border border-blue-100 shadow-sm flex flex-col gap-3 transition hover:shadow-md">
@@ -777,6 +907,11 @@
                         <div class="bg-blue-50/30 rounded-xl p-4 my-1 border border-blue-50">
                             <p class="text-sm md:text-base text-gray-800 break-words font-medium leading-relaxed">${q.content}</p>
                             ${q.imageUrl ? `<img src="${q.imageUrl}" class="max-w-full max-h-[300px] h-auto rounded-xl object-contain mt-3 shadow-sm border border-gray-100" loading="lazy">` : ''}
+                            <div class="mt-3 flex">
+                                <button onclick="window.toggleQnaQuestionLike('${q.id}')" class="text-[10px] flex items-center gap-1 ${qIsLiked ? 'text-rose-500' : 'text-gray-500 hover:text-rose-400'} bg-white px-2.5 py-1.5 rounded-lg border border-gray-200 transition shadow-sm font-bold">
+                                    ${qIsLiked ? '❤️' : '🤍'} 유용해요 ${qLikeCount}
+                                </button>
+                            </div>
                         </div>
                         
                         <!-- Answers Section -->
@@ -809,6 +944,31 @@
                     </div>
                 `;
             }).join('');
+            
+            renderQnaPagination(totalPages);
+        };
+
+        const renderQnaPagination = (totalPages) => {
+            const paginationEl = document.getElementById('qna-pagination');
+            paginationEl.innerHTML = '';
+            
+            if (totalPages <= 1) return;
+
+            for (let i = 1; i <= totalPages; i++) {
+                const btn = document.createElement('button');
+                btn.textContent = i;
+                if (i === qnaCurrentPage) {
+                    btn.className = 'w-8 h-8 rounded-full bg-blue-500 text-white text-xs font-bold shadow-md transform scale-110 transition-all';
+                } else {
+                    btn.className = 'w-8 h-8 rounded-full bg-white border border-gray-200 text-gray-600 text-xs font-bold hover:bg-gray-50 transition-all';
+                }
+                btn.addEventListener('click', () => {
+                    qnaCurrentPage = i;
+                    renderQnA();
+                    document.getElementById('qna-tabs-container').scrollIntoView({ behavior: 'smooth', block: 'start' });
+                });
+                paginationEl.appendChild(btn);
+            }
         };
 
         // 질문 폼 이미지 파일명 표시
@@ -848,6 +1008,7 @@
                     content,
                     imageUrl,
                     answers: [], // 초기 답변 배열
+                    likedBy: [], // 질문 좋아요 배열
                     createdAt: serverTimestamp(),
                     userId: currentUser.uid
                 });
@@ -889,6 +1050,7 @@
                     name: name,
                     content: content,
                     imageUrl: imageUrl,
+                    likedBy: [], // 답변 좋아요 배열
                     createdAt: new Date().toISOString(),
                     userId: currentUser.uid
                 };
@@ -956,7 +1118,7 @@
                         '1단원 소통으로 커지는 세상 + 너를 기다리는 동안',
                         '4단원 음운 (음운의 변동 규칙 전체)'
                     ],
-                    method: '음운 규칙(교체, 탈락, 축약, 첨가)을 실제 단어로 구분하며 암기하세요. 문학은 화자의 정서 변화를 "인출 학습"으로 확인하는 것이 핵심입니다.'
+                    method: '음운 규칙(교체, 탈락, 축약, 첨가)을 실제 단어로 구분하며 암기하세요. 문학은 화자의 정서 변화를 '인출 학습'으로 확인하는 것이 핵심입니다.'
                 },
                 {
                     id: 'math', name: '공통수학', icon: '📐', color: 'bg-blue-50', textColor: 'text-blue-700', borderColor: 'border-blue-100',
@@ -966,7 +1128,7 @@
                         '교과서 p.10~66, p.86 1~7번 / p.134~136, p.137 8번',
                         '연습문제(리로스쿨-활동보고서-교과활동 업로드)'
                     ],
-                    method: '교과서 및 추가 연습 문제를 최소 5번 반복하세요. 눈으로 풀지 마세요! 손이 기억하게 해야 합니다. 개념 정리 후 예제/유제부터 잡으세요. 틀린 문제는 오답 노트에 옮기고 "왜 이 공식을 썼는지" 설명할 수 있을 때까지 반복하세요.'
+                    method: '교과서 및 추가 연습 문제를 최소 5번 반복하세요. 눈으로 풀지 마세요! 손이 기억하게 해야 합니다. 개념 정리 후 예제/유제부터 잡으세요. 틀린 문제는 오답 노트에 옮기고 '왜 이 공식을 썼는지' 설명할 수 있을 때까지 반복하세요.'
                 },
                 {
                     id: 'english', name: '공통영어', icon: '🔤', color: 'bg-amber-50', textColor: 'text-amber-700', borderColor: 'border-amber-100',
@@ -1009,9 +1171,35 @@
             const gridContainer = document.getElementById('subject-grid');
             subjectsData.forEach(subject => {
                 const card = document.createElement('div');
-                card.className = `subject-card bg-white rounded-[2rem] p-5 border border-gray-100 shadow-sm flex flex-col justify-between transition-transform active:scale-95`;
-                let scopeHtml = subject.scope.map(item => `<li class="flex items-start gap-2 mb-1"><span class="text-[8px] mt-1.5 text-gray-300">▶</span> <span class="text-gray-700 text-[10px] font-medium leading-relaxed">${item}</span></li>`).join('');
-                card.innerHTML = `<div><div class="flex justify-between items-center mb-3 text-sm md:text-base"><div class="flex items-center gap-3"><span class="text-xl md:text-2xl">${subject.icon}</span><h3 class="text-base font-bold text-gray-800">${subject.name}</h3></div><div class="w-6 h-6 rounded-full bg-gray-50 flex items-center justify-center text-gray-300"><span class="chevron transition-transform text-[8px]">▼</span></div></div><div class="text-[11px] text-gray-400 line-clamp-2 preview-text font-medium leading-relaxed mb-1">${subject.method}</div><div class="subject-content text-sm"><div class="${subject.color} rounded-2xl p-4 mb-4 border ${subject.borderColor}"><h4 class="font-black ${subject.textColor} mb-2 text-[9px] uppercase tracking-wider tracking-tighter">Exam Range</h4><ul class="">${scopeHtml}</ul></div><div><h4 class="font-black text-gray-800 mb-2 text-[9px] uppercase tracking-wider">Secret Strategy</h4><p class="text-gray-600 text-[10px] md:text-[11px] p-4 rounded-xl bg-gray-50/50 border border-gray-100 font-medium leading-relaxed">${subject.method}</p></div></div></div>`;
+                card.className = `subject-card bg-white rounded-[2rem] p-5 md:p-6 border border-gray-100 shadow-sm flex flex-col justify-between transition-transform active:scale-95`;
+                
+                let scopeHtml = subject.scope.map(item => `<li class="flex items-start gap-2.5 mb-2"><span class="text-[10px] md:text-xs mt-[3px] text-gray-300">▶</span> <span class="text-gray-700 text-xs md:text-sm font-medium leading-relaxed">${item}</span></li>`).join('');
+                
+                card.innerHTML = `
+                    <div>
+                        <div class="flex justify-between items-center mb-4">
+                            <div class="flex items-center gap-3">
+                                <span class="text-2xl md:text-3xl leading-none flex items-center">${subject.icon}</span>
+                                <h3 class="text-lg md:text-xl font-bold text-gray-800 leading-none">${subject.name}</h3>
+                            </div>
+                            <div class="w-8 h-8 rounded-full bg-gray-50 flex items-center justify-center text-gray-400">
+                                <span class="chevron transition-transform text-[10px]">▼</span>
+                            </div>
+                        </div>
+                        <div class="text-xs md:text-sm text-gray-500 line-clamp-2 preview-text font-medium leading-relaxed mb-2">${subject.method}</div>
+                        <div class="subject-content text-sm">
+                            <div class="${subject.color} rounded-2xl p-4 md:p-5 mb-5 border ${subject.borderColor}">
+                                <h4 class="font-black ${subject.textColor} mb-3 text-[11px] md:text-xs uppercase tracking-wider">Exam Range</h4>
+                                <ul class="">${scopeHtml}</ul>
+                            </div>
+                            <div>
+                                <h4 class="font-black text-gray-800 mb-3 text-[11px] md:text-xs uppercase tracking-wider">Secret Strategy</h4>
+                                <p class="text-gray-700 text-xs md:text-sm p-4 md:p-5 rounded-xl bg-gray-50/50 border border-gray-100 font-medium leading-relaxed">${subject.method}</p>
+                            </div>
+                        </div>
+                    </div>
+                `;
+                
                 card.addEventListener('click', function() {
                     const isActive = this.classList.contains('active');
                     document.querySelectorAll('.subject-card').forEach(c => {
