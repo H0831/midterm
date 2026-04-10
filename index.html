@@ -91,17 +91,42 @@
         }
         .nav-dot.active { background-color: #F43F5E; transform: scale(1.3); }
 
-        .sticky-note { transition: all 0.2s ease; border-radius: 8px; }
+        .sticky-note { 
+            transition: all 0.2s ease; 
+            border-radius: 8px; 
+            min-height: 8rem; /* 고정 높이 해제, 유동성 부여 */
+            height: auto;
+        }
         .sticky-note:hover { transform: scale(1.02) rotate(0.5deg); z-index: 10; }
 
         ::-webkit-scrollbar { width: 5px; }
         ::-webkit-scrollbar-track { background: #f1f1f1; }
         ::-webkit-scrollbar-thumb { background: #d4d4d4; border-radius: 10px; }
 
+        .scrollbar-hide::-webkit-scrollbar { display: none; }
+        .scrollbar-hide { -ms-overflow-style: none; scrollbar-width: none; }
+
         .keep-all { word-break: keep-all; }
+        
+        /* 이미지 유동 반응 설정 */
+        img { max-width: 100%; height: auto; }
     </style>
 </head>
-<body class="antialiased">
+<body class="antialiased relative">
+
+    <!-- Admin Password Modal (관리자 삭제 모달) -->
+    <div id="admin-modal" class="fixed inset-0 bg-black/50 z-[100] hidden flex items-center justify-center p-4">
+        <div class="bg-white rounded-2xl p-6 max-w-sm w-full shadow-2xl transform scale-95 transition-transform">
+            <h3 class="font-bold text-lg mb-2 text-gray-800">관리자 권한 확인 🔒</h3>
+            <p class="text-xs text-gray-500 mb-4">해당 항목을 삭제하려면 관리자 비밀번호를 입력하세요. <br></p>
+            <input type="password" id="admin-pwd" class="w-full border border-gray-200 rounded-lg px-3 py-2 text-sm mb-2 outline-none focus:ring-1 focus:ring-rose-400" placeholder="비밀번호 입력">
+            <div id="admin-msg" class="hidden text-rose-500 text-[10px] font-bold mb-4"></div>
+            <div class="flex justify-end gap-2 mt-4">
+                <button id="btn-admin-cancel" class="px-4 py-2 bg-gray-100 text-gray-600 rounded-lg text-xs font-bold hover:bg-gray-200">취소</button>
+                <button id="btn-admin-confirm" class="px-4 py-2 bg-rose-500 text-white rounded-lg text-xs font-bold hover:bg-rose-600">삭제 확인</button>
+            </div>
+        </div>
+    </div>
 
     <!-- Navigation Dots -->
     <div class="nav-dots" id="nav-dots">
@@ -111,6 +136,7 @@
         <div class="nav-dot" data-target="allday"></div>
         <div class="nav-dot" data-target="deepwork-tools"></div>
         <div class="nav-dot" data-target="board"></div>
+        <div class="nav-dot" data-target="qna"></div>
         <div class="nav-dot" data-target="footer"></div>
     </div>
 
@@ -132,7 +158,7 @@
                 <div class="bg-white px-8 md:px-12 py-5 md:py-7 rounded-[2rem] shadow-lg border border-gray-100 flex flex-wrap justify-center items-center gap-6 md:gap-14">
                     <div class="text-left">
                         <p class="text-[10px] text-gray-400 font-bold uppercase tracking-widest mb-1">Target Range</p>
-                        <p class="text-base md:text-lg font-bold text-gray-800 tracking-tight">4.9(목) ~ 4.27(월)</p>
+                        <p class="text-base md:text-lg font-bold text-gray-800 tracking-tight">4.10(금) ~ 4.27(월)</p>
                     </div>
                     <div class="hidden sm:block w-px h-8 bg-gray-100"></div>
                     <div class="text-5xl md:text-7xl font-black text-rose-500 tracking-tighter" id="d-day-display">D-Day</div>
@@ -154,22 +180,22 @@
         </div>
     </section>
 
-    <!-- Section 3: 19일 집중 스케줄 & 자투리 시간 활용 (요청 내용 그대로 반영) -->
+    <!-- Section 3: 19일 집중 스케줄 & 자투리 시간 활용 -->
     <section id="schedule-niche" class="page-section">
         <div class="max-w-6xl mx-auto w-full px-4 grid grid-cols-1 lg:grid-cols-12 gap-8">
             <!-- Timeline (7/12) -->
             <div class="lg:col-span-7 bg-white rounded-[2.5rem] p-6 md:p-10 shadow-sm border border-gray-100 h-fit">
                 <h2 class="text-xl md:text-2xl font-bold text-gray-800 flex items-center gap-3 mb-3">
-                    <span class="text-2xl md:text-3xl">⏳</span> 19일의 기적 스케줄
+                    <span class="text-2xl md:text-3xl">⏳</span> 17일의 기적 스케줄
                 </h2>
-                <p class="text-xs md:text-sm text-gray-500 mb-8">4월 9일부터 시험 전날까지, 3단계 집중 목표입니다.</p>
+                <p class="text-xs md:text-sm text-gray-500 mb-8">4월 10일부터 시험 전날까지, 3단계 집중 목표입니다.</p>
 
                 <div class="relative border-l-2 md:border-l-4 border-amber-200 ml-3 md:ml-5 space-y-10 md:space-y-12 pb-4">
                     <!-- Phase 1 -->
                     <div class="relative timeline-node pl-8 md:pl-10">
                         <div class="absolute w-5 h-5 md:w-7 md:h-7 bg-amber-400 rounded-full -left-[11px] md:-left-[16px] top-1 border-4 border-white shadow-sm"></div>
                         <div class="bg-amber-50 rounded-3xl p-5 md:p-6 border border-amber-100">
-                            <span class="text-[10px] md:text-xs font-bold text-amber-600 uppercase tracking-widest">1단계 (4/9 ~ 4/14)</span>
+                            <span class="text-[10px] md:text-xs font-bold text-amber-600 uppercase tracking-widest">1단계 (4/10 ~ 4/14)</span>
                             <h3 class="text-lg font-bold text-gray-800 mt-1">개념 완성기 (내용 정리 & 암기 노트)</h3>
                             <ul class="mt-3 text-xs md:text-sm text-gray-600 space-y-2">
                                 <li>• 전 과목 교과서 정독(3회 이상) 및 노트 정리(미니 암기노트)</li>
@@ -291,7 +317,7 @@
         </div>
     </section>
 
-    <!-- Section 5: 비밀 도구 & 몰입법 (요청 내용 반영) -->
+    <!-- Section 5: 비밀 도구 & 몰입법 -->
     <section id="deepwork-tools" class="page-section bg-gray-900 text-white">
         <div class="max-w-6xl mx-auto w-full px-4">
             <div class="mb-14 text-center">
@@ -301,7 +327,6 @@
                 <p class="text-gray-400 text-[11px] md:text-xs uppercase tracking-widest">Strategic Management Pro</p>
             </div>
             
-            <!-- Strategic Tools (짝수 맞춤) -->
             <div class="grid grid-cols-1 md:grid-cols-2 gap-6 md:gap-8 mb-12">
                 <div class="bg-gradient-to-br from-indigo-50/10 to-blue-50/10 rounded-[2rem] p-8 border border-white/10 group transition-all hover:bg-white/5">
                     <h3 class="text-xl font-bold text-blue-400 mb-6 flex items-center gap-2">✅ 스터디 플래너 (매일의 약속)</h3>
@@ -319,7 +344,7 @@
                             <span class="text-sm md:text-base leading-relaxed"><strong>순공시간 체크:</strong> 목표 시간과 실제 공부 시간이 얼마나 차이 나는지 확인.</span>
                         </li>
                         <li class="flex items-start gap-3">
-                            <span class="font-bold bg-blue-500 text-white w-6 h-6 flex items-center justify-center rounded-full text-xs shrink-0 mt-0.5 shadow-lg">3</span>
+                            <span class="font-bold bg-blue-500 text-white w-6 h-6 flex items-center justify-center rounded-full text-xs shrink-0 mt-0.5 shadow-lg">4</span>
                             <span class="text-sm md:text-base leading-relaxed"><strong>엄격한 피드백:</strong> 취침 전 완료 여부 체크 후 내일 계획에 즉시 반영.</span>
                         </li>
                     </ul>
@@ -347,7 +372,6 @@
                     </ul>
                 </div>
             </div>
-
         </div>
     </section>
 
@@ -358,19 +382,88 @@
                 <h2 class="text-2xl md:text-3xl font-black text-rose-500 flex items-center justify-center gap-3">
                     <span class="text-2xl md:text-3xl">💖</span> 우리들의 응원 보드
                 </h2>
-                <p class="text-xs md:text-sm text-gray-500 mt-2 font-medium">작은 한마디가 누군가에겐 힘이 됩니다.</p>
+                <p class="text-xs md:text-sm text-gray-500 mt-2 font-medium">글과 사진을 올려 서로에게 작은 힘이 되어주세요!</p>
             </div>
 
             <div class="bg-amber-50/10 rounded-[3rem] p-6 md:p-8 border border-amber-100">
-                <div class="bg-white rounded-3xl p-6 shadow-md mb-10 border border-amber-50 max-w-2xl mx-auto">
-                    <div class="grid grid-cols-1 md:grid-cols-4 gap-3">
-                        <input id="note-name" type="text" placeholder="닉네임" class="md:col-span-1 border border-gray-200 rounded-xl px-4 py-2 focus:ring-1 focus:ring-amber-200 outline-none text-[11px]">
-                        <input id="note-content" type="text" placeholder="응원을 남겨주세요! (30자)" class="md:col-span-2 border border-gray-200 rounded-xl px-4 py-2 focus:ring-1 focus:ring-amber-200 outline-none text-[11px]">
-                        <button id="btn-add-note" class="md:col-span-1 bg-rose-400 hover:bg-rose-500 text-white font-black py-2 rounded-xl transition-all text-xs">게시하기</button>
+                <div class="bg-white rounded-3xl p-6 shadow-md mb-10 border border-amber-50 max-w-3xl mx-auto">
+                    <div class="flex flex-col gap-3">
+                        <div class="flex flex-col md:flex-row gap-3">
+                            <input id="note-name" type="text" placeholder="닉네임" class="md:w-1/4 border border-gray-200 rounded-xl px-4 py-2 focus:ring-1 focus:ring-amber-200 outline-none text-[11px]">
+                            <input id="note-content" type="text" placeholder="응원 메시지를 남겨주세요! (자유롭게 작성)" class="md:w-3/4 border border-gray-200 rounded-xl px-4 py-2 focus:ring-1 focus:ring-amber-200 outline-none text-[11px]">
+                        </div>
+                        <div class="flex flex-col md:flex-row gap-3 items-center justify-between">
+                            <div class="flex items-center gap-2 w-full md:w-2/3">
+                                <label for="note-image" class="text-[10px] font-bold text-gray-500 bg-gray-100 px-3 py-2 rounded-lg cursor-pointer hover:bg-gray-200 transition">📷 사진 첨부</label>
+                                <input id="note-image" type="file" accept="image/*" class="hidden">
+                                <span id="note-file-name" class="text-[9px] text-gray-400 truncate max-w-[150px]">선택된 파일 없음</span>
+                            </div>
+                            <button id="btn-add-note" class="w-full md:w-1/3 bg-rose-400 hover:bg-rose-500 text-white font-black py-2 rounded-xl transition-all text-xs">응원 게시하기</button>
+                        </div>
                     </div>
                     <div id="form-msg" class="hidden text-rose-500 text-center mt-3 text-[10px] font-bold"></div>
                 </div>
-                <div id="note-board" class="grid grid-cols-2 md:grid-cols-4 gap-4 min-h-[300px]"></div>
+                <div id="note-board" class="grid grid-cols-2 md:grid-cols-4 gap-4 min-h-[300px] items-start"></div>
+            </div>
+        </div>
+    </section>
+
+    <!-- Section 6.5: QnA 게시판 (신규) -->
+    <section id="qna" class="page-section bg-blue-50/30">
+        <div class="max-w-6xl mx-auto w-full px-4">
+            <div class="mb-10 text-center">
+                <h2 class="text-2xl md:text-3xl font-black text-blue-600 flex items-center justify-center gap-3">
+                    <span class="text-2xl md:text-3xl">🙋‍♂️</span> 지식 공유 Q&A
+                </h2>
+                <p class="text-xs md:text-sm text-gray-500 mt-2 font-medium">모르는 문제를 묻고, 친구의 질문에 답하며 함께 성장해요.</p>
+            </div>
+
+            <!-- QnA Form -->
+            <div class="bg-white rounded-3xl p-6 shadow-md mb-10 border border-blue-100 max-w-3xl mx-auto">
+                <div class="flex flex-col gap-3">
+                    <div class="flex flex-col md:flex-row gap-3">
+                        <select id="qna-category" class="md:w-1/4 border border-gray-200 rounded-xl px-3 py-2 text-[11px] outline-none text-gray-600 font-bold focus:ring-1 focus:ring-blue-200">
+                            <option value="종합">종합</option>
+                            <option value="국어">국어</option>
+                            <option value="수학">수학</option>
+                            <option value="영어">영어</option>
+                            <option value="사회">사회</option>
+                            <option value="과학">과학</option>
+                            <option value="한국사">한국사</option>
+                        </select>
+                        <input id="qna-sid" type="text" placeholder="학번 (예: 10101)" class="md:w-1/4 border border-gray-200 rounded-xl px-4 py-2 focus:ring-1 focus:ring-blue-200 outline-none text-[11px]">
+                        <input id="qna-name" type="text" placeholder="이름" class="md:w-2/4 border border-gray-200 rounded-xl px-4 py-2 focus:ring-1 focus:ring-blue-200 outline-none text-[11px]">
+                    </div>
+                    <textarea id="qna-content" placeholder="어떤 부분이 헷갈리나요? 자세히 적어주세요." class="w-full border border-gray-200 rounded-xl px-4 py-3 h-24 resize-none focus:ring-1 focus:ring-blue-200 outline-none text-xs"></textarea>
+                    
+                    <div class="flex flex-col md:flex-row gap-3 items-center justify-between">
+                        <div class="flex items-center gap-2 w-full md:w-2/3">
+                            <label for="qna-image" class="text-[10px] font-bold text-gray-500 bg-gray-100 px-3 py-2 rounded-lg cursor-pointer hover:bg-gray-200 transition">📷 문제 사진 첨부</label>
+                            <input id="qna-image" type="file" accept="image/*" class="hidden">
+                            <span id="qna-file-name" class="text-[9px] text-gray-400 truncate max-w-[150px]">선택된 파일 없음</span>
+                        </div>
+                        <button id="btn-add-qna" class="w-full md:w-1/3 bg-blue-500 hover:bg-blue-600 text-white font-black py-2 rounded-xl transition-all text-xs">질문 등록하기</button>
+                    </div>
+                </div>
+                <div id="qna-form-msg" class="hidden text-rose-500 text-center mt-3 text-[10px] font-bold"></div>
+            </div>
+
+            <!-- QnA Tabs & List -->
+            <div class="max-w-4xl mx-auto">
+                <div class="flex gap-2 overflow-x-auto pb-2 mb-6 scrollbar-hide" id="qna-tabs-container">
+                    <button onclick="window.setQnaFilter('전체')" class="qna-tab active bg-blue-500 text-white px-5 py-1.5 rounded-full text-xs font-bold shrink-0 shadow-sm transition-colors">전체</button>
+                    <button onclick="window.setQnaFilter('종합')" class="qna-tab bg-white border border-gray-200 text-gray-600 px-5 py-1.5 rounded-full text-xs font-bold shrink-0 hover:bg-gray-50 transition-colors">종합</button>
+                    <button onclick="window.setQnaFilter('국어')" class="qna-tab bg-white border border-gray-200 text-gray-600 px-5 py-1.5 rounded-full text-xs font-bold shrink-0 hover:bg-gray-50 transition-colors">국어</button>
+                    <button onclick="window.setQnaFilter('수학')" class="qna-tab bg-white border border-gray-200 text-gray-600 px-5 py-1.5 rounded-full text-xs font-bold shrink-0 hover:bg-gray-50 transition-colors">수학</button>
+                    <button onclick="window.setQnaFilter('영어')" class="qna-tab bg-white border border-gray-200 text-gray-600 px-5 py-1.5 rounded-full text-xs font-bold shrink-0 hover:bg-gray-50 transition-colors">영어</button>
+                    <button onclick="window.setQnaFilter('사회')" class="qna-tab bg-white border border-gray-200 text-gray-600 px-5 py-1.5 rounded-full text-xs font-bold shrink-0 hover:bg-gray-50 transition-colors">사회</button>
+                    <button onclick="window.setQnaFilter('과학')" class="qna-tab bg-white border border-gray-200 text-gray-600 px-5 py-1.5 rounded-full text-xs font-bold shrink-0 hover:bg-gray-50 transition-colors">과학</button>
+                    <button onclick="window.setQnaFilter('한국사')" class="qna-tab bg-white border border-gray-200 text-gray-600 px-5 py-1.5 rounded-full text-xs font-bold shrink-0 hover:bg-gray-50 transition-colors">한국사</button>
+                </div>
+                
+                <div id="qna-list" class="space-y-4 min-h-[300px]">
+                    <!-- Questions will be dynamically inserted here -->
+                </div>
             </div>
         </div>
     </section>
@@ -403,7 +496,7 @@
     <script type="module">
         import { initializeApp } from 'https://www.gstatic.com/firebasejs/11.0.1/firebase-app.js';
         import { getAuth, signInAnonymously, onAuthStateChanged, signInWithCustomToken } from 'https://www.gstatic.com/firebasejs/11.0.1/firebase-auth.js';
-        import { getFirestore, collection, addDoc, onSnapshot, serverTimestamp } from 'https://www.gstatic.com/firebasejs/11.0.1/firebase-firestore.js';
+        import { getFirestore, collection, addDoc, onSnapshot, serverTimestamp, doc, deleteDoc, updateDoc } from 'https://www.gstatic.com/firebasejs/11.0.1/firebase-firestore.js';
 
         const firebaseConfig = {
   apiKey: "AIzaSyBCC_ZKDOKVWagnRdxyXMibEK4-tQVx5EI",
@@ -414,12 +507,48 @@
   appId: "1:50842617524:web:cbe2b1029a9b7bb043b9e1",
   measurementId: "G-PTR207JCBK"
 };
+        
         const app = initializeApp(firebaseConfig);
         const auth = getAuth(app);
         const db = getFirestore(app);
         const appId = typeof __app_id !== 'undefined' ? __app_id : 'highschool-final-integrated-v2';
 
         let currentUser = null;
+        let questionsData = [];
+        let currentQnaFilter = '전체';
+        let deleteTarget = { type: null, parentId: null, childId: null }; // 모달 상태 관리
+
+        // 이미지 압축 (최대 너비 800px, 품질 70%)
+        const compressImage = (file) => {
+            return new Promise((resolve) => {
+                if (!file) return resolve(null);
+                const reader = new FileReader();
+                reader.onload = (event) => {
+                    const img = new Image();
+                    img.src = event.target.result;
+                    img.onload = () => {
+                        const canvas = document.createElement('canvas');
+                        const MAX_WIDTH = 800;
+                        let width = img.width;
+                        let height = img.height;
+
+                        if (width > MAX_WIDTH) {
+                            height *= MAX_WIDTH / width;
+                            width = MAX_WIDTH;
+                        }
+                        canvas.width = width;
+                        canvas.height = height;
+                        const ctx = canvas.getContext('2d');
+                        ctx.drawImage(img, 0, 0, width, height);
+                        resolve(canvas.toDataURL('image/jpeg', 0.7));
+                    };
+                    img.onerror = () => resolve(null);
+                };
+                reader.onerror = () => resolve(null);
+                reader.readAsDataURL(file);
+            });
+        };
+
         const initAuth = async () => {
             if (typeof __initial_auth_token !== 'undefined' && __initial_auth_token) {
                 await signInWithCustomToken(auth, __initial_auth_token).catch(() => signInAnonymously(auth));
@@ -427,12 +556,78 @@
                 await signInAnonymously(auth);
             }
         };
+
         onAuthStateChanged(auth, (user) => {
             currentUser = user;
-            if (user) setupRealtimeBoard();
+            if (user) {
+                setupRealtimeBoard();
+                setupRealtimeQnA();
+            }
         });
+        
         initAuth();
 
+        // ------------------
+        // Admin Modal Logic
+        // ------------------
+        window.requestDelete = (type, parentId, childId = null) => {
+            deleteTarget = { type, parentId, childId };
+            const modal = document.getElementById('admin-modal');
+            modal.classList.remove('hidden');
+            setTimeout(() => {
+                modal.firstElementChild.classList.remove('scale-95');
+                modal.firstElementChild.classList.add('scale-100');
+            }, 10);
+        };
+
+        const closeModal = () => {
+            const modal = document.getElementById('admin-modal');
+            modal.firstElementChild.classList.remove('scale-100');
+            modal.firstElementChild.classList.add('scale-95');
+            setTimeout(() => {
+                modal.classList.add('hidden');
+                document.getElementById('admin-pwd').value = '';
+                document.getElementById('admin-msg').classList.add('hidden');
+                deleteTarget = { type: null, parentId: null, childId: null };
+            }, 150);
+        };
+
+        document.getElementById('btn-admin-cancel').addEventListener('click', closeModal);
+        document.getElementById('btn-admin-confirm').addEventListener('click', async () => {
+            const pwd = document.getElementById('admin-pwd').value;
+            const msgEl = document.getElementById('admin-msg');
+            
+            if (pwd !== '260831') { // 관리자 비밀번호
+                msgEl.textContent = '비밀번호가 일치하지 않습니다.';
+                msgEl.classList.remove('hidden');
+                return;
+            }
+            
+            try {
+                if (deleteTarget.type === 'note') {
+                    await deleteDoc(doc(db, 'artifacts', appId, 'public', 'data', 'messages', deleteTarget.parentId));
+                } else if (deleteTarget.type === 'question') {
+                    await deleteDoc(doc(db, 'artifacts', appId, 'public', 'data', 'qna_questions', deleteTarget.parentId));
+                } else if (deleteTarget.type === 'answer') {
+                    const qDocRef = doc(db, 'artifacts', appId, 'public', 'data', 'qna_questions', deleteTarget.parentId);
+                    const q = questionsData.find(q => q.id === deleteTarget.parentId);
+                    if (q) {
+                        const newAnswers = (q.answers || []).filter(a => a.id !== deleteTarget.childId);
+                        await updateDoc(qDocRef, { answers: newAnswers });
+                    }
+                }
+                closeModal();
+            } catch (e) {
+                console.error(e);
+                msgEl.textContent = '오류가 발생했습니다.';
+                msgEl.classList.remove('hidden');
+            }
+        });
+
+
+        // ------------------
+        // 응원 보드 로직
+        // ------------------
         const boardEl = document.getElementById('note-board');
         const colors = ['bg-yellow-50 border-yellow-100', 'bg-pink-50 border-pink-100', 'bg-green-50 border-green-100', 'bg-blue-50 border-blue-100', 'bg-purple-50 border-purple-100', 'bg-orange-50 border-orange-100'];
 
@@ -442,7 +637,7 @@
                 const notes = [];
                 snapshot.forEach(doc => notes.push({ id: doc.id, ...doc.data() }));
                 notes.sort((a, b) => (b.createdAt?.toMillis() || 0) - (a.createdAt?.toMillis() || 0));
-                renderNotes(notes.slice(0, 12));
+                renderNotes(notes.slice(0, 20)); // 사진이 포함되어 너무 길어질 수 있으니 20개까지만 표시
             }, (error) => console.error(error));
         };
 
@@ -455,36 +650,269 @@
             notes.forEach((note, idx) => {
                 const colorClass = colors[idx % colors.length];
                 const noteDiv = document.createElement('div');
-                noteDiv.className = `sticky-note ${colorClass} p-4 rounded-2xl shadow-sm border transform rotate-${idx % 2 === 0 ? '-1' : '1'} flex flex-col justify-between h-32`;
-                noteDiv.innerHTML = `<p class="text-[10px] text-gray-700 font-bold leading-relaxed overflow-hidden italic">"${note.content}"</p><div class="mt-2 border-t border-black/5 pt-1 flex justify-end"><span class="font-black text-gray-400 text-[8px]">${note.name}</span></div>`;
+                noteDiv.className = `sticky-note ${colorClass} p-4 rounded-2xl shadow-sm border transform rotate-${idx % 2 === 0 ? '-1' : '1'} flex flex-col justify-between`;
+                
+                let imgHtml = '';
+                if (note.imageUrl) {
+                    imgHtml = `<img src="${note.imageUrl}" class="w-full h-auto max-h-[120px] object-cover rounded-lg mb-2 shadow-sm bg-white/50" loading="lazy">`;
+                }
+
+                noteDiv.innerHTML = `
+                    <div class="flex-grow flex flex-col">
+                        ${imgHtml}
+                        <p class="text-[10px] md:text-xs text-gray-700 font-bold leading-relaxed break-words italic mb-2 flex-grow">"${note.content}"</p>
+                    </div>
+                    <div class="mt-auto border-t border-black/5 pt-2 flex justify-between items-center">
+                        <button onclick="window.requestDelete('note', '${note.id}')" class="text-[9px] text-rose-400 hover:text-rose-600 bg-white/60 px-2 py-0.5 rounded transition">🗑️ 삭제</button>
+                        <span class="font-black text-gray-500 text-[9px] bg-white/60 px-2 py-0.5 rounded">${note.name}</span>
+                    </div>
+                `;
                 boardEl.appendChild(noteDiv);
             });
         };
+
+        document.getElementById('note-image').addEventListener('change', function(e) {
+            const fileName = e.target.files[0] ? e.target.files[0].name : "선택된 파일 없음";
+            document.getElementById('note-file-name').textContent = fileName;
+        });
 
         document.getElementById('btn-add-note').addEventListener('click', async () => {
             if (!currentUser) return;
             const name = document.getElementById('note-name').value.trim();
             const content = document.getElementById('note-content').value.trim();
+            const fileInput = document.getElementById('note-image');
             const msgEl = document.getElementById('form-msg');
+            
             if (!name || !content) {
                 msgEl.textContent = "닉네임과 내용을 모두 입력해주세요! 😊";
                 msgEl.classList.remove('hidden');
+                msgEl.classList.replace('text-blue-500', 'text-rose-500');
                 return;
             }
+            
+            msgEl.textContent = "이미지 처리 및 게시 중... ⏳";
+            msgEl.classList.remove('hidden');
+            msgEl.classList.replace('text-rose-500', 'text-blue-500');
+
             try {
+                const imageUrl = await compressImage(fileInput.files[0]);
+                
                 await addDoc(collection(db, 'artifacts', appId, 'public', 'data', 'messages'), {
-                    name, content, createdAt: serverTimestamp(), userId: currentUser.uid
+                    name, content, imageUrl, createdAt: serverTimestamp(), userId: currentUser.uid
                 });
+                
                 document.getElementById('note-content').value = '';
+                document.getElementById('note-name').value = '';
+                fileInput.value = '';
+                document.getElementById('note-file-name').textContent = '선택된 파일 없음';
+                
                 msgEl.textContent = "응원이 도착했어요! 💖";
-                msgEl.classList.remove('hidden');
+                msgEl.classList.replace('text-blue-500', 'text-rose-500');
                 setTimeout(() => msgEl.classList.add('hidden'), 2000);
             } catch (e) {
                 msgEl.textContent = "오류 발생! 다시 시도해 주세요. 😢";
+                msgEl.classList.replace('text-blue-500', 'text-rose-500');
             }
         });
+
+        // ------------------
+        // Q&A 게시판 로직
+        // ------------------
+        const setupRealtimeQnA = () => {
+            const qnaCollection = collection(db, 'artifacts', appId, 'public', 'data', 'qna_questions');
+            onSnapshot(qnaCollection, (snapshot) => {
+                questionsData = [];
+                snapshot.forEach(doc => questionsData.push({ id: doc.id, ...doc.data() }));
+                questionsData.sort((a, b) => (b.createdAt?.toMillis() || 0) - (a.createdAt?.toMillis() || 0));
+                renderQnA();
+            }, (error) => console.error(error));
+        };
+
+        window.setQnaFilter = (category) => {
+            currentQnaFilter = category;
+            // 탭 스타일 변경
+            document.querySelectorAll('.qna-tab').forEach(btn => {
+                if(btn.textContent.trim() === category) {
+                    btn.classList.remove('bg-white', 'border', 'border-gray-200', 'text-gray-600');
+                    btn.classList.add('bg-blue-500', 'text-white');
+                } else {
+                    btn.classList.add('bg-white', 'border', 'border-gray-200', 'text-gray-600');
+                    btn.classList.remove('bg-blue-500', 'text-white');
+                }
+            });
+            renderQnA();
+        };
+
+        const renderQnA = () => {
+            const listEl = document.getElementById('qna-list');
+            const filtered = currentQnaFilter === '전체' ? questionsData : questionsData.filter(q => q.category === currentQnaFilter);
+            
+            if (filtered.length === 0) {
+                listEl.innerHTML = '<div class="text-center py-10 bg-white rounded-2xl border border-dashed border-gray-200"><p class="text-gray-400 text-sm font-bold mb-1">등록된 질문이 없습니다.</p><p class="text-[10px] text-gray-300">궁금한 점을 가장 먼저 물어보세요!</p></div>';
+                return;
+            }
+
+            listEl.innerHTML = filtered.map(q => {
+                const answersHtml = (q.answers || []).map(a => `
+                    <div class="bg-gray-50/80 rounded-xl p-3 border border-gray-100 flex flex-col gap-2 relative group">
+                        <div class="flex justify-between items-center">
+                            <span class="text-[10px] font-bold text-blue-700 bg-blue-100/50 px-2 py-0.5 rounded">${a.studentId} ${a.name}</span>
+                            <button onclick="window.requestDelete('answer', '${q.id}', '${a.id}')" class="text-gray-300 hover:text-rose-400 text-[10px] transition font-bold">삭제</button>
+                        </div>
+                        <p class="text-xs text-gray-700 break-words leading-relaxed">${a.content}</p>
+                        ${a.imageUrl ? `<img src="${a.imageUrl}" class="w-full max-w-[300px] h-auto rounded-lg object-contain shadow-sm border border-gray-100" loading="lazy">` : ''}
+                    </div>
+                `).join('');
+
+                return `
+                    <div class="bg-white rounded-[1.5rem] p-5 md:p-7 border border-blue-100 shadow-sm flex flex-col gap-3 transition hover:shadow-md">
+                        <div class="flex justify-between items-start">
+                            <div class="flex items-center gap-2">
+                                <span class="bg-blue-500 text-white text-[10px] px-2.5 py-1 rounded-full font-bold shadow-sm">${q.category}</span>
+                                <span class="text-xs font-bold text-gray-700 bg-gray-100 px-2.5 py-1 rounded-full">${q.studentId} ${q.name}</span>
+                            </div>
+                            <button onclick="window.requestDelete('question', '${q.id}')" class="text-gray-300 hover:text-rose-500 text-[10px] font-bold px-2 py-1 transition">삭제</button>
+                        </div>
+                        
+                        <div class="bg-blue-50/30 rounded-xl p-4 my-1 border border-blue-50">
+                            <p class="text-sm md:text-base text-gray-800 break-words font-medium leading-relaxed">${q.content}</p>
+                            ${q.imageUrl ? `<img src="${q.imageUrl}" class="max-w-full max-h-[300px] h-auto rounded-xl object-contain mt-3 shadow-sm border border-gray-100" loading="lazy">` : ''}
+                        </div>
+                        
+                        <!-- Answers Section -->
+                        <div class="mt-2 border-t border-gray-100 pt-4">
+                            <h5 class="text-[11px] font-black text-gray-400 uppercase tracking-widest mb-3 flex items-center gap-1">
+                                💬 답변 <span class="bg-blue-100 text-blue-600 px-1.5 rounded-full text-[9px]">${q.answers?.length || 0}</span>
+                            </h5>
+                            <div class="space-y-2.5 mb-4">
+                                ${answersHtml}
+                            </div>
+                            
+                            <!-- Answer Form -->
+                            <div class="flex flex-col gap-2 bg-white border border-gray-200 p-3.5 rounded-2xl shadow-sm">
+                                <div class="flex gap-2">
+                                    <input type="text" id="ans-sid-${q.id}" placeholder="학번" class="w-1/3 border border-gray-200 rounded-lg px-3 py-1.5 text-[10px] outline-none focus:ring-1 focus:ring-blue-200 bg-gray-50">
+                                    <input type="text" id="ans-name-${q.id}" placeholder="이름" class="w-2/3 border border-gray-200 rounded-lg px-3 py-1.5 text-[10px] outline-none focus:ring-1 focus:ring-blue-200 bg-gray-50">
+                                </div>
+                                <textarea id="ans-content-${q.id}" placeholder="친절한 답변을 남겨주세요..." class="w-full border border-gray-200 rounded-lg px-3 py-2 text-xs outline-none resize-none h-14 focus:ring-1 focus:ring-blue-200 bg-gray-50"></textarea>
+                                
+                                <div class="flex items-center gap-2 justify-between mt-1">
+                                    <div class="flex items-center gap-2 w-2/3">
+                                        <label for="ans-image-${q.id}" class="text-[9px] font-bold text-gray-500 bg-gray-100 px-2 py-1.5 rounded cursor-pointer hover:bg-gray-200">📷 사진</label>
+                                        <input type="file" id="ans-image-${q.id}" accept="image/*" class="hidden" onchange="document.getElementById('ans-fname-${q.id}').textContent = this.files[0] ? this.files[0].name : '없음'">
+                                        <span id="ans-fname-${q.id}" class="text-[8px] text-gray-400 truncate max-w-[80px]">선택 안됨</span>
+                                    </div>
+                                    <button onclick="window.submitAnswer('${q.id}')" class="bg-blue-500 hover:bg-blue-600 text-white px-4 py-1.5 text-[10px] rounded-lg font-bold shadow-sm transition">답변 등록</button>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                `;
+            }).join('');
+        };
+
+        // 질문 폼 이미지 파일명 표시
+        document.getElementById('qna-image').addEventListener('change', function(e) {
+            const fileName = e.target.files[0] ? e.target.files[0].name : "선택된 파일 없음";
+            document.getElementById('qna-file-name').textContent = fileName;
+        });
+
+        // 질문 등록
+        document.getElementById('btn-add-qna').addEventListener('click', async () => {
+            if (!currentUser) return;
+            const category = document.getElementById('qna-category').value;
+            const sid = document.getElementById('qna-sid').value.trim();
+            const name = document.getElementById('qna-name').value.trim();
+            const content = document.getElementById('qna-content').value.trim();
+            const fileInput = document.getElementById('qna-image');
+            const msgEl = document.getElementById('qna-form-msg');
+            
+            if (!sid || !name || !content) {
+                msgEl.textContent = '학번, 이름, 내용을 모두 입력해주세요! 😥';
+                msgEl.classList.remove('hidden');
+                msgEl.classList.replace('text-blue-500', 'text-rose-500');
+                return;
+            }
+            
+            msgEl.textContent = '질문 등록 중... ⏳';
+            msgEl.classList.remove('hidden');
+            msgEl.classList.replace('text-rose-500', 'text-blue-500');
+            
+            try {
+                const imageUrl = await compressImage(fileInput.files[0]);
+                
+                await addDoc(collection(db, 'artifacts', appId, 'public', 'data', 'qna_questions'), {
+                    category,
+                    studentId: sid,
+                    name,
+                    content,
+                    imageUrl,
+                    answers: [], // 초기 답변 배열
+                    createdAt: serverTimestamp(),
+                    userId: currentUser.uid
+                });
+                
+                document.getElementById('qna-sid').value = '';
+                document.getElementById('qna-name').value = '';
+                document.getElementById('qna-content').value = '';
+                fileInput.value = '';
+                document.getElementById('qna-file-name').textContent = '선택된 파일 없음';
+                
+                msgEl.textContent = '질문이 성공적으로 게시되었습니다! 🎉';
+                setTimeout(() => msgEl.classList.add('hidden'), 2000);
+            } catch (e) {
+                console.error(e);
+                msgEl.textContent = '오류 발생! 다시 시도해 주세요.';
+                msgEl.classList.replace('text-blue-500', 'text-rose-500');
+            }
+        });
+
+        // 답변 등록
+        window.submitAnswer = async (qId) => {
+            if (!currentUser) return;
+            const sid = document.getElementById(`ans-sid-${qId}`).value.trim();
+            const name = document.getElementById(`ans-name-${qId}`).value.trim();
+            const content = document.getElementById(`ans-content-${qId}`).value.trim();
+            const fileInput = document.getElementById(`ans-image-${qId}`);
+            
+            if (!sid || !name || !content) {
+                alert("답변을 위해 학번, 이름, 내용을 모두 입력해주세요!"); // 부득이한 최소 검증 알림
+                return;
+            }
+            
+            try {
+                const imageUrl = await compressImage(fileInput.files[0]);
+                
+                const newAnswer = {
+                    id: crypto.randomUUID(),
+                    studentId: sid,
+                    name: name,
+                    content: content,
+                    imageUrl: imageUrl,
+                    createdAt: new Date().toISOString(),
+                    userId: currentUser.uid
+                };
+                
+                const qDocRef = doc(db, 'artifacts', appId, 'public', 'data', 'qna_questions', qId);
+                const q = questionsData.find(q => q.id === qId);
+                const updatedAnswers = [...(q.answers || []), newAnswer];
+                
+                await updateDoc(qDocRef, { answers: updatedAnswers });
+                
+                // 입력 필드 초기화
+                document.getElementById(`ans-sid-${qId}`).value = '';
+                document.getElementById(`ans-name-${qId}`).value = '';
+                document.getElementById(`ans-content-${qId}`).value = '';
+                fileInput.value = '';
+            } catch (e) {
+                console.error(e);
+                alert("답변 등록 중 오류가 발생했습니다.");
+            }
+        };
+
     </script>
 
+    <!-- UI/UX Scripts -->
     <script>
         document.addEventListener('DOMContentLoaded', () => {
             // Navigation Dot Control
@@ -517,7 +945,7 @@
             else if (diffDays === 0) displayEl.innerText = `D-Day`;
             else displayEl.innerText = `Win!`;
 
-            // Subject Mastery Data (Strictly Mapped from Images)
+            // Subject Mastery Data
             const subjectsData = [
                 {
                     id: 'korean', name: '공통국어', icon: '🍎', color: 'bg-rose-50', textColor: 'text-rose-700', borderColor: 'border-rose-100',
@@ -538,7 +966,7 @@
                         '교과서 p.10~66, p.86 1~7번 / p.134~136, p.137 8번',
                         '연습문제(리로스쿨-활동보고서-교과활동 업로드)'
                     ],
-                    method: '교과서 및 추가 연습 문제를 최소 5번 반복하세요. 눈으로 풀지 마세요! 손이 기억하게 해야 합니다. 개념 정리 후 예제/유제부터 잡으세요. 틀린 문제는 오답 노트에 옮기고 "왜 이 공식을 썼는지" 설명할 수 있을 때까지 반복하세요. 고난도 문항은 개념과 더불어 풀이 과정을 백지에 재현할 수 있을 때까지 훈련해야 합니다.'
+                    method: '교과서 및 추가 연습 문제를 최소 5번 반복하세요. 눈으로 풀지 마세요! 손이 기억하게 해야 합니다. 개념 정리 후 예제/유제부터 잡으세요. 틀린 문제는 오답 노트에 옮기고 "왜 이 공식을 썼는지" 설명할 수 있을 때까지 반복하세요.'
                 },
                 {
                     id: 'english', name: '공통영어', icon: '🔤', color: 'bg-amber-50', textColor: 'text-amber-700', borderColor: 'border-amber-100',
